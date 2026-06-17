@@ -1,5 +1,5 @@
 import argparse
-from lib.semantic_search import verify_model, embed_text, verify_embeddings, search, chunk_query, semantic_chunk_query, embed_chunks
+from lib.semantic_search import verify_model, embed_text, verify_embeddings, search, chunk_query, semantic_chunk_query, embed_chunks, search_chunked
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Semantic Searcher CLI")
@@ -28,6 +28,10 @@ def main() -> None:
     semantic_chunk_parser.add_argument("--overlap", type=int, nargs='?', default=0, help="overlap in chunk(sentences)")
 
     embed_chunk_parser = subparsers.add_parser("embed_chunks", help="load movie documents and build chunk embeddings")
+
+    search_chunked_parser = subparsers.add_parser("search_chunked", help="search by chunks")
+    search_chunked_parser.add_argument("query", type=str, help="query to search for")
+    search_chunked_parser.add_argument("--limit", type=int, nargs='?', default=5, help="number of results to show")
     
     args = parser.parse_args()
     
@@ -55,7 +59,6 @@ def main() -> None:
             print(f"Chunking {total_chars} characters")
             for i, res in enumerate(result, 1):
                 print(f"{i}. {res}")
-
             pass
         case "semantic_chunk":
             query = args.query
@@ -65,8 +68,14 @@ def main() -> None:
             print(f"Semantically chunking {total_chars} characters")
             for i, res in enumerate(result, 1):
                 print(f"{i}. {res}")
+            pass
         case "embed_chunks":
             embed_chunks()
+            pass
+        case "search_chunked":
+            query = args.query
+            limit = args.limit
+            search_chunked(query, limit)
             pass
         case _:
             parser.print_help()
