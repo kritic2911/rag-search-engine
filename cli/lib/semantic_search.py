@@ -106,7 +106,7 @@ class ChunkedSemanticSearch(SemanticSearch):
         for doc in documents:
             self.document_map[doc["id"]] = doc
             if len(doc["description"]) > 0:
-                result, _ = semantic_chunk_query(doc["description"], 4, 1)
+                result = semantic_chunk_query(doc["description"], 4, 1)
                 chunks.extend(result)
                 chunk_len = len(result)
                 for ind, chunk in enumerate(result):
@@ -180,7 +180,7 @@ class ChunkedSemanticSearch(SemanticSearch):
         ]
         return result
 
-def chunk_query(query: str, chunk_size: int = 200, overlap: int = 0):
+def chunk_query(query: str, chunk_size: int = 200, overlap: int = 0) -> list[str]:
     query_split = query.split()
     n = len(query_split)
     total_chars = len(query)
@@ -191,23 +191,28 @@ def chunk_query(query: str, chunk_size: int = 200, overlap: int = 0):
         i += chunk_size
         if i >= overlap:
             i -= overlap
-    return result, total_chars
+    return result
 
 
-def semantic_chunk_query(
-    query: str, max_chunk_size: int = 4, overlap: int = 0
-) -> tuple:
+def semantic_chunk_query(query: str, max_chunk_size: int = 4, overlap: int = 0) -> list[str]:
+    query.strip()
+    if not query:
+        return []
     query_split = re.split(r"(?<=[.!?])\s+", query)
+    if len(query_split) == 1 and query_split[-1] not in ".?!":
+        return [query]
     total_chars = len(query)
     n = len(query_split)
     result = []
     i = 0
     while i < n:
-        result.append(" ".join(query_split[i : i + max_chunk_size]))
+        q = (' '.join(query_split[i : i + max_chunk_size])).strip()
         i += max_chunk_size
-        if i >= overlap:
-            i -= overlap
-    return result, total_chars
+        if q:
+            result.append(q)
+            if i >= overlap:
+                i -= overlap
+    return result
 
 
 def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:

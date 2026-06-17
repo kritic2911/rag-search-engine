@@ -55,7 +55,8 @@ def main() -> None:
             query = args.query
             chunk_size = args.chunk_size
             overlap = args.overlap
-            result, total_chars = chunk_query(query, chunk_size, overlap)
+            result = chunk_query(query, chunk_size, overlap)
+            total_chars = len(query)
             print(f"Chunking {total_chars} characters")
             for i, res in enumerate(result, 1):
                 print(f"{i}. {res}")
@@ -64,7 +65,8 @@ def main() -> None:
             query = args.query
             max_chunk_size = args.max_chunk_size
             overlap = args.overlap
-            result, total_chars = semantic_chunk_query(query, max_chunk_size, overlap)
+            total_chars = len(query)
+            result = semantic_chunk_query(query, max_chunk_size, overlap)
             print(f"Semantically chunking {total_chars} characters")
             for i, res in enumerate(result, 1):
                 print(f"{i}. {res}")
