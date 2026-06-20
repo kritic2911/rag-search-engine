@@ -125,7 +125,9 @@ def main() -> None:
             query = args.query
             limit = args.limit
             results = invInd.bm25_search(query, limit)
-            for i, (doc_id, score) in enumerate(results.items(), 1):
+            for i, res in enumerate(results, 1):
+                doc_id = res['doc_id']
+                score = res['score']
                 doc_name = invInd.docmap[doc_id]
                 print(f"{i}. ({doc_id}) {doc_name} - Score: {score: .2f}")
         case _:

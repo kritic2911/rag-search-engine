@@ -282,3 +282,6 @@ def search_chunked(query: str, limit: int = 5):
     for i, res in enumerate(result, 1):
         print(f"\n{i}. {res['title']} (score: {res['score']:.4f})")
         print(f"   {res['document']}...")
+
+
+[[[[[[[[[[[[[[]]]]]]]]]]]]]]

@@ -15,6 +15,9 @@ class InvertedIndex:
         self.term_frequencies = {}  # int: Counter() => doc_id: term_freq_count in a document
         self.doc_lengths = {}
         self.doc_lengths_path = os.path.join(CACHE_DIR, "doc_lengths.pkl")
+        self.index_path = os.path.join(CACHE_DIR, "index.pkl")
+        self.docmap_path = os.path.join(CACHE_DIR + "docmap.pkl")
+        self.term_freq_path = os.path.join(CACHE_DIR + "term_frequencies.pkl")
         # self.stopwords = stop_words or []
         # self.movie_list = movie_list or []
 
@@ -57,7 +60,7 @@ class InvertedIndex:
         bm25_idf = self.get_bm25_idf(term)
         return bm25_idf * bm25_tf
 
-    def bm25_search(self, query, limit):
+    def bm25_search(self, query: str, limit: int) -> list[dict]:
         tokenized_query = tokenize(query)
         scores = {}
         for token in tokenized_query:
@@ -66,7 +69,9 @@ class InvertedIndex:
                     scores[doc] += self.bm25(doc, token)
                 else:
                     scores[doc] = self.bm25(doc, token)
-        top_docs = dict(sorted(scores.items(), key=lambda item: item[1], reverse=True)[:limit])
+
+        top_docs = [{"doc_id": item[0], "score": item[1]} for item in sorted(scores.items(), key=lambda item: item[1], reverse=True)[:limit]]
+
         return top_docs
 
     def __get_avg_doc_length(self) -> float:
@@ -87,25 +92,25 @@ class InvertedIndex:
         return self.index, self.docmap
 
     def save(self):
-        dir_path = Path("/home/kc/rag-search-engine/cache")
+        dir_path = Path(CACHE_DIR)
         dir_path.mkdir(parents=True, exist_ok=True)
-        with open( CACHE_DIR + "index.pkl", "wb") as f:
+        with open( self.index_path, "wb") as f:
             pickle.dump(self.index, f)
-        with open(CACHE_DIR + "docmap.pkl", "wb") as f:
+        with open(self.docmap_path, "wb") as f:
             pickle.dump(self.docmap, f)
-        with open(CACHE_DIR + "term_frequencies.pkl", "wb") as f:
+        with open(self.term_freq_path, "wb") as f:
             pickle.dump(self.term_frequencies, f)
-        with open(CACHE_DIR + "doc_lengths.pkl", "wb") as f:
+        with open(self.doc_lengths_path, "wb") as f:
             pickle.dump(self.doc_lengths, f)
 
     def load(self):
-        with open(CACHE_DIR + "index.pkl", "rb") as f:
+        with open(self.index_path, "rb") as f:
             self.index = pickle.load(f)
-        with open(CACHE_DIR + "docmap.pkl", "rb") as f:
+        with open(self.docmap_path, "rb") as f:
             self.docmap = pickle.load(f)
-        with open(CACHE_DIR + "term_frequencies.pkl", "rb") as f:
+        with open(self.term_freq_path, "rb") as f:
             self.term_frequencies = pickle.load(f)
-        with open(CACHE_DIR + "doc_lengths.pkl", "rb") as f:
+        with open(self.doc_lengths_path, "rb") as f:
             self.doc_lengths = pickle.load(f)
 
 
